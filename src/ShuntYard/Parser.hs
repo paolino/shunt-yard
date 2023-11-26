@@ -105,19 +105,19 @@ migrateOperators opCurWithParens = void $ runMaybeT $ forever $ do
 data Stack = Stack [Item] [OperatorOrOpen]
     deriving (Show, Eq)
 
-runParse :: Parse a -> [Token] -> (a, Stack)
+runParse :: Parse () -> [Token] -> Stack
 runParse f is = go (Stack [] []) is f
   where
     go s xs f' = interpret s xs $ view f'
-    interpret :: Stack -> [Token] -> ProgramView ParseT a -> (a, Stack)
-    interpret s _xs (Return x) = (x, s)
+    interpret :: Stack -> [Token] -> ProgramView ParseT () -> Stack
+    interpret s _xs (Return {}) = s
     interpret s [] (Consume :>>= k) =
         go s [] $ k Nothing
     interpret s (x : xs) (Consume :>>= k) =
         go s xs $ k $ Just x
     interpret s is' (PushItem x :>>= k) =
-        let (r, Stack xs os) = go s is' $ k ()
-        in (r, Stack (x : xs) os)
+        let Stack xs os = go s is' $ k ()
+        in Stack (x : xs) os
     interpret (Stack xs os) is' (PushOperator o :>>= k) =
         go (Stack xs (o : os)) is' $ k ()
     interpret (Stack xs []) is' (PopOperator :>>= k) =
@@ -129,7 +129,7 @@ runParse f is = go (Stack [] []) is f
         go (Stack xs os) is' $ k $ Just o
 
 parser :: [Token] -> [Item]
-parser ts = case snd $ runParse parseP ts of
+parser ts = case runParse parseP ts of
     Stack xs os -> xs <> fmap onlyOps os
 
 onlyOps :: OperatorOrOpen -> Item
