@@ -1,10 +1,16 @@
-import Data.List (intercalate)
+{-# LANGUAGE BlockArguments #-}
+
+import Control.Exception (SomeException, catch)
+import Control.Monad (forM_)
+import Data.List (lines)
 import ShuntYard.Evaluator (evaluator)
 import ShuntYard.Lexer (lexer)
 import ShuntYard.Parser (parser)
-import System.Environment (getArgs)
 
 main :: IO ()
 main = do
-    as <- getArgs
-    print $ evaluator . parser . lexer $ intercalate " " as
+    xs <- lines <$> getContents
+    forM_ xs $ \x ->
+        catch
+            do print . evaluator . parser . lexer $ x
+            do \e -> print (e :: SomeException)
