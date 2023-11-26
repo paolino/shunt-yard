@@ -1,40 +1,21 @@
-cabal-version:      2.4
+cabal-version:      3.4
 name:               shunt-yard
 version:            0.1.0.0
-
--- A short (one-line) description of the package.
--- synopsis:
-
--- A longer description of the package.
--- description:
-
--- A URL where users can report bugs.
--- bug-reports:
-
--- The license under which the package is released.
--- license:
+synopsis:           Shuntyard algorithm implementation, with evaluator
+description:        Please see README.md
+license:            Apache-2.0
 author:             paolino
 maintainer:         paolo.veronelli@gmail.com
-
--- A copyright notice.
--- copyright:
--- category:
+category:           algorithms
 extra-source-files: CHANGELOG.md
 
 library
   exposed-modules:
     ShuntYard.Evaluator
     ShuntYard.Lexer
+    ShuntYard.Operator
     ShuntYard.Parser
     ShuntYard.Token
-    ShuntYard.Operator
-
-  -- Modules included in this library but not exported.
-  -- other-modules:
-  other-extensions:
-    BlockArguments
-    GADTs
-    LambdaCase
 
   build-depends:
     , base          ^>=4.17.2.0
@@ -51,7 +32,7 @@ test-suite shunt-yard-test
 
   -- Directories containing source files.
   hs-source-dirs:   tests
-  ghc-options:  -O2
+  ghc-options:      -O2
   main-is:          Test.hs
   build-depends:
     , base         ^>=4.17.2.0
@@ -68,13 +49,7 @@ test-suite shunt-yard-test
 
 executable sy
   main-is:          Main.hs
-
-  -- Modules included in this executable, other than Main.
-  -- other-modules:
-
-  -- LANGUAGE extensions used by modules in this package.
-  -- other-extensions:
-  ghc-options:  -O2
+  ghc-options:      -O2
   build-depends:
     , base        ^>=4.17.2.0
     , shunt-yard
