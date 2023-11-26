@@ -122,3 +122,17 @@ testLexer = moduleTest "lexer" $ do
                 , Double 2
                 , ClosedParens
                 ]
+    assertEq
+        do "parse \"2 * (-8 + 1)\""
+        do lexer "2 * (-8 + 1)"
+        do
+            [ Double 2
+                , Operator Times
+                , OpenParens
+                , Double 0
+                , Operator Minus
+                , Double 8
+                , Operator Plus
+                , Double 1
+                , ClosedParens
+                ]

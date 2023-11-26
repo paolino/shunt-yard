@@ -61,3 +61,27 @@ testParser = moduleTest "parser" do
                 , NumberI 3.0
                 , OpI Times
                 ]
+    assertEq
+        do "parse \"2 * (-8 + 1)\""
+        do parser $ lexer "2 * (-8 + 1)"
+        do
+            [ NumberI 2.0
+                , NumberI 0.0
+                , NumberI 8.0
+                , OpI Minus
+                , NumberI 1.0
+                , OpI Plus
+                , OpI Times
+                ]
+    assertEq
+        do "parse \"2 * (1 + 1 + 1)\""
+        do parser $ lexer "2 * (1 + 1 + 1)"
+        do
+            [ NumberI 2.0
+                , NumberI 1.0
+                , NumberI 1.0
+                , OpI Plus
+                , NumberI 1.0
+                , OpI Plus
+                , OpI Times
+                ]

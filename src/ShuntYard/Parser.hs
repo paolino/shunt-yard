@@ -37,6 +37,7 @@ data OperatorOrOpen
 data OperatorOrClosed
     = OpC Operator
     | OpClosedParens
+    deriving (Show, Eq)
 
 -- a parser for a stream of tokens
 data ParseT l where
@@ -85,7 +86,11 @@ migrateOperators :: OperatorOrClosed -> Parse ()
 migrateOperators opCurWithParens = void $ runMaybeT $ forever $ do
     opStackWithParens <- MaybeT popOperator
     case opStackWithParens of
-        OpOpenParens -> mzero
+        OpOpenParens -> do
+            case opCurWithParens of
+                OpClosedParens -> pure ()
+                OpC opCur -> lift $ pushOperator OpOpenParens
+            mzero
         OpO opStack -> case opCurWithParens of
             OpC opCur -> do
                 if precedence opStack >= precedence opCur
