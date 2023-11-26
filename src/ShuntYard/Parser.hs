@@ -115,8 +115,9 @@ runParse f is = go (Stack [] []) is f
         go s [] $ k Nothing
     interpret s (x : xs) (Consume :>>= k) =
         go s xs $ k $ Just x
-    interpret (Stack xs os) is' (PushItem x :>>= k) =
-        go (Stack (x : xs) os) is' $ k ()
+    interpret s is' (PushItem x :>>= k) =
+        let (r, Stack xs os) = go s is' $ k ()
+        in (r, Stack (x : xs) os)
     interpret (Stack xs os) is' (PushOperator o :>>= k) =
         go (Stack xs (o : os)) is' $ k ()
     interpret (Stack xs []) is' (PopOperator :>>= k) =
@@ -129,7 +130,7 @@ runParse f is = go (Stack [] []) is f
 
 parser :: [Token] -> [Item]
 parser ts = case snd $ runParse parseP ts of
-    Stack xs os -> reverse xs <> fmap onlyOps os
+    Stack xs os -> xs <> fmap onlyOps os
 
 onlyOps :: OperatorOrOpen -> Item
 onlyOps (OpO op) = OpI op
