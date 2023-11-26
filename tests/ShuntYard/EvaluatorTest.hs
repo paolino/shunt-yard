@@ -10,7 +10,7 @@ import Prelude
 import AssertList (AssertList, assertEq, moduleTest)
 import MonadicList (List, el, list)
 import ShuntYard.Evaluator (evaluator)
-import ShuntYard.Lexer (Operator (..), Token (..), lexer)
+import ShuntYard.Lexer (lexer)
 import ShuntYard.Parser (Item (..), parser)
 import Test.HUnit (Test (..), Testable (..), assertEqual, runTestTT)
 

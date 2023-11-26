@@ -8,7 +8,8 @@ where
 import Prelude
 
 import AssertList (assertEq, moduleTest)
-import ShuntYard.Lexer (Operator (..), lexer)
+import ShuntYard.Lexer (lexer)
+import ShuntYard.Operator (Operator (..))
 import ShuntYard.Parser (Item (..), parser)
 import Test.HUnit (Test)
 

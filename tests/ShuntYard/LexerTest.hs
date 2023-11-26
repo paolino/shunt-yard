@@ -5,7 +5,9 @@ module ShuntYard.LexerTest where
 import Prelude
 
 import AssertList (assertEq, moduleTest)
-import ShuntYard.Lexer (Operator (..), Token (..), lexer)
+import ShuntYard.Lexer (lexer)
+import ShuntYard.Operator (Operator (..))
+import ShuntYard.Token (Token (..))
 import Test.HUnit (Test)
 
 testLexer :: Test

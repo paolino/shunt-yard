@@ -2,48 +2,14 @@
 
 module ShuntYard.Lexer
     ( lexer
-    , Token (..)
-    , Operator (..)
-    , Precedence (..)
-    , operation
-    , precedence
     )
 where
 
 import Prelude
 
 import Data.Char (ord)
-
--- arithmetic operators
-data Operator = Plus | Minus | Times | Div
-    deriving (Show, Eq)
-
-operation :: (Fractional a) => Operator -> a -> a -> a
-operation Plus = (+)
-operation Minus = (-)
-operation Times = (*)
-operation Div = (/)
-
-data Precedence = Low | High
-    deriving (Show, Eq, Ord)
-
-precedence :: Operator -> Precedence
-precedence Plus = Low
-precedence Minus = Low
-precedence Times = High
-precedence Div = High
-
--- arithmetic tokens
-data Token
-    = OpenParens
-    | ClosedParens
-    | Digit Int
-    | Natural Int Int
-    | Double Double
-    | Dot
-    | Operator Operator
-    | Space
-    deriving (Show, Eq)
+import ShuntYard.Operator (Operator (..))
+import ShuntYard.Token (Token (..))
 
 -- this is removing digits
 compressNatural :: [Token] -> [Token]

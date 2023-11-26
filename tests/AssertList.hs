@@ -20,7 +20,6 @@ import Control.Monad.Operational
     )
 import MonadicList (List, el, list)
 import ShuntYard.Evaluator (evaluator)
-import ShuntYard.Lexer (Operator (..), Token (..), lexer)
 import ShuntYard.Parser (Item (..), parser)
 import Test.HUnit (Test (..), Testable (..), assertEqual, runTestTT)
 

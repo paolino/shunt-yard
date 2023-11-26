@@ -17,7 +17,7 @@ import Control.Monad.Operational
     )
 import Control.Monad.Trans (lift)
 import Control.Monad.Trans.Maybe (MaybeT (..))
-import ShuntYard.Lexer (operation)
+import ShuntYard.Operator (operation)
 import ShuntYard.Parser (Item (..))
 
 data EvalT l where

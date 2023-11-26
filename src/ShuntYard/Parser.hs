@@ -8,7 +8,7 @@ module ShuntYard.Parser
     )
 where
 
-import Prelude hiding (fail)
+import Prelude
 
 import Control.Monad (MonadPlus (..), forever, void)
 import Control.Monad.Operational
@@ -20,12 +20,8 @@ import Control.Monad.Operational
     )
 import Control.Monad.Trans (lift)
 import Control.Monad.Trans.Maybe (MaybeT (..))
-import Debug.Trace (traceShow)
-import ShuntYard.Lexer
-    ( Operator (..)
-    , Token (..)
-    , precedence
-    )
+import ShuntYard.Operator (Operator, precedence)
+import ShuntYard.Token (Token (..))
 
 data Operand = Negative Operand | Value Double
     deriving (Show, Eq)
@@ -33,18 +29,21 @@ data Operand = Negative Operand | Value Double
 data Item = NumberI Double | OpI Operator
     deriving (Show, Eq)
 
-data OperatorWithParens
+data OperatorOrOpen
     = OpOpenParens
-    | Op Operator
-    | OpClosedParens
+    | OpO Operator
     deriving (Show, Eq)
+
+data OperatorOrClosed
+    = OpC Operator
+    | OpClosedParens
 
 -- a parser for a stream of tokens
 data ParseT l where
     Consume :: ParseT (Maybe Token)
     PushItem :: Item -> ParseT ()
-    PushOperator :: OperatorWithParens -> ParseT ()
-    PopOperator :: ParseT (Maybe OperatorWithParens)
+    PushOperator :: OperatorOrOpen -> ParseT ()
+    PopOperator :: ParseT (Maybe OperatorOrOpen)
 
 type Parse a = Program ParseT a
 
@@ -54,10 +53,10 @@ consume = singleton Consume
 pushItem :: Item -> Parse ()
 pushItem = singleton . PushItem
 
-pushOperator :: OperatorWithParens -> Parse ()
+pushOperator :: OperatorOrOpen -> Parse ()
 pushOperator = singleton . PushOperator
 
-popOperator :: Parse (Maybe OperatorWithParens)
+popOperator :: Parse (Maybe OperatorOrOpen)
 popOperator = singleton PopOperator
 
 parseP :: Parse ()
@@ -71,8 +70,8 @@ parseP = do
                     pushItem $ NumberI y
                     parseP
                 Operator op -> do
-                    migrateOperators $ Op op
-                    pushOperator $ Op op
+                    migrateOperators $ OpC op
+                    pushOperator $ OpO op
                     parseP
                 OpenParens -> do
                     pushOperator OpOpenParens
@@ -82,27 +81,23 @@ parseP = do
                     parseP
                 op -> error $ "unexpected token: " <> show op
 
-migrateOperators :: OperatorWithParens -> Parse ()
+migrateOperators :: OperatorOrClosed -> Parse ()
 migrateOperators opCurWithParens = void $ runMaybeT $ forever $ do
     opStackWithParens <- MaybeT popOperator
     case opStackWithParens of
         OpOpenParens -> mzero
-        Op opStack -> case opCurWithParens of
-            Op opCur -> do
+        OpO opStack -> case opCurWithParens of
+            OpC opCur -> do
                 if precedence opStack >= precedence opCur
                     then do
                         lift $ pushItem $ OpI opStack
                     else do
-                        lift $ pushOperator $ Op opStack
+                        lift $ pushOperator $ OpO opStack
                         mzero
             OpClosedParens -> do
                 lift $ pushItem $ OpI opStack
-            OpOpenParens ->
-                error "migrateOperators: unexpected operator: OpOpenParens"
-        _ ->
-            error "migrateOperators: unexpected operator: ClosedParens"
 
-data Stack = Stack [Item] [OperatorWithParens]
+data Stack = Stack [Item] [OperatorOrOpen]
     deriving (Show, Eq)
 
 runParse :: Parse a -> [Token] -> (a, Stack)
@@ -131,6 +126,6 @@ parser :: [Token] -> [Item]
 parser ts = case snd $ runParse parseP ts of
     Stack xs os -> reverse xs <> fmap onlyOps os
 
-onlyOps :: OperatorWithParens -> Item
-onlyOps (Op op) = OpI op
-onlyOps op = error $ "onlyOps: unexpected operator" <> show op
+onlyOps :: OperatorOrOpen -> Item
+onlyOps (OpO op) = OpI op
+onlyOps OpOpenParens = error "onlyOps: unexpected OpOpenParens"

@@ -26,6 +26,8 @@ library
     ShuntYard.Evaluator
     ShuntYard.Lexer
     ShuntYard.Parser
+    ShuntYard.Token
+    ShuntYard.Operator
 
   -- Modules included in this library but not exported.
   -- other-modules:
